@@ -296,7 +296,7 @@ def ventana_pantoja():
         # ==========================================
         # AQUÍ PANTOJA DEBE COLOCAR SU CÓDIGO
         # ==========================================
-        messagebox.showinfo("Calcular", "Se ejecutó el cálculo de pantoja")
+        messagebox.showinfo("Calcular", "Se ejecutó el cálculo de pantoja_gaaa")
 
     boton_calcular = ttk.Button(win, text="Calcular", command=calcular)
     boton_calcular.pack(pady=15)

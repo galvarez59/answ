@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, simpledialog  
+import math
 
 # ==================================================
 # ===   SUBRUTINA MAIN                           ===
@@ -44,37 +46,86 @@ def ventana_main():
 # ==================================================
 def ventana_ayleen():
     win = tk.Toplevel(root)
-    win.title("Ventana ayleen")
-    win.geometry("450x300")
+    win.title("Ventana Ayllen")
+    win.geometry("450x450")
     win.configure(bg="#ecf0f1")
 
-    titulo = ttk.Label(
-        win,
-        text="Subrutina: ayleen",
-        font=("Segoe UI", 18, "bold"),
-        background="#ecf0f1"
-    )
-    titulo.pack(pady=30)
+    # --- 1. Tus funciones matemáticas de Topografía ---
+    def boton_1_entrada():
+        global datos_entrada
+        try:
+            ee = float(simpledialog.askstring("Entrada", "Este de la Estación:"))
+            ne = float(simpledialog.askstring("Entrada", "Norte de la Estación:"))
+            er = float(simpledialog.askstring("Entrada", "Este de Referencia:"))
+            nr = float(simpledialog.askstring("Entrada", "Norte de Referencia:"))
+            
+            datos_entrada = {
+                "est": (ee, ne),
+                "ref": (er, nr),
+                "puntos": [
+                    ("PR-01", ee + 5, ne + 5),
+                    ("PR-02", ee - 5, ne - 5),
+                    ("PR-03", ee, ne - 10)
+                ]
+            }
+            messagebox.showinfo("Éxito", "Coordenadas base cargadas correctamente.")
+        except (ValueError, TypeError):
+            messagebox.showerror("Error", "Debes ingresar números válidos.")
 
-    etiqueta = ttk.Label(
-        win,
-        text="Aquí ayleen debe colocar su código",
-        font=("Segoe UI", 12),
-        background="#ecf0f1"
-    )
-    etiqueta.pack(pady=10)
+    def boton_2_calcular():
+        global datos_entrada, resultados_calculo
+        if not datos_entrada:
+            messagebox.showwarning("Atención", "Primero ingresa los datos en el Botón 1.")
+            return
 
-    def calcular():
-        # ==========================================
-        # AQUÍ AYLEEN DEBE COLOCAR SU CÓDIGO
-        # ==========================================
-        messagebox.showinfo("Calcular", "Se ejecutó el cálculo de ayleen")
+        try:
+            ee, ne = datos_entrada["est"]
+            resultados_calculo = []
+            
+            for nombre, ep, np in datos_entrada["puntos"]:
+                dx = ep - ee
+                dy = np - ne
+                dh = math.sqrt(dx**2 + dy**2)
+                azimut = math.degrees(math.atan2(dx, dy)) % 360
+                resultados_calculo.append((nombre, dh, azimut))
+            
+            messagebox.showinfo("Proceso", "Cálculos finalizados con éxito.")
+        except Exception as error_interno:
+            # Si falta 'math' o algo falla, esta ventana te lo dirá explícitamente
+            messagebox.showerror("Error en Cálculo", f"No se pudo calcular debido a: {error_interno}")
 
-    boton_calcular = ttk.Button(win, text="Calcular", command=calcular)
-    boton_calcular.pack(pady=15)
+    def boton_3_resultados():
+        global resultados_calculo
+        if not resultados_calculo:
+            messagebox.showwarning("Atención", "Primero calcula los datos con el Botón 2.")
+            return
+        
+        res_texto = "REPORTE DE REPLANTEO\n" + "-"*35 + "\n"
+        res_texto += f"{'Punto':<8} | {'Dist. (m)':<10} | {'Azimut (°)':<10}\n"
+        res_texto += "-"*35 + "\n"
+        for p, d, a in resultados_calculo:
+            res_texto += f"{p:<8} | {d:<10.3f} | {a:<10.4f}\n"
+        
+        ventana_res = tk.Toplevel(win)
+        ventana_res.title("Resultados de Replanteo")
+        tk.Label(ventana_res, text=res_texto, font=("Courier", 11), justify=tk.LEFT, padx=20, pady=20).pack()
+
+    # --- 2. Tu interfaz visual dentro de la ventana ---
+    titulo = ttk.Label(win, text="Módulo de Replanteo", font=("Segoe UI", 16, "bold"), background="#ecf0f1")
+    titulo.pack(pady=(20, 10))
+
+    # NOTA: Nota que 'command' va SIN paréntesis al final
+    btn_in = ttk.Button(win, text="1. Entrada de Coordenadas", command=boton_1_entrada)
+    btn_in.pack(pady=10, fill='x', padx=50)
+
+    btn_calc = ttk.Button(win, text="2. Procesar Azimuts", command=boton_2_calcular)
+    btn_calc.pack(pady=10, fill='x', padx=50)
+
+    btn_out = ttk.Button(win, text="3. Ver Cartera de Campo", command=boton_3_resultados)
+    btn_out.pack(pady=10, fill='x', padx=50)
 
     boton_volver = ttk.Button(win, text="Volver al Menú Principal", command=win.destroy)
-    boton_volver.pack(pady=10)
+    boton_volver.pack(pady=(30, 10))
 
 
 # ==================================================
